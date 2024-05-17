@@ -23,8 +23,10 @@
     pip3 install -r requirements.txt
     ```
 3. 下载coco数据集：
+    ```
     python3 download_and_install.py
-
+    ```
+    
 3. docker启动qrdant
     ```
     docker pull qdrant/qdrant
