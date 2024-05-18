@@ -1,7 +1,6 @@
 from PIL import Image
 import torch
 from transformers import CLIPProcessor, CLIPModel
-from openai import OpenAI
 
 
 def get_image_embedding(image_path):
@@ -16,34 +15,20 @@ def get_image_embedding(image_path):
 
 
 def get_text_embedding(texts):
-    # 加载预训练的CLIP模型和处理器
     model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
     processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-
-    # 处理文本以适配模型输入
     inputs = processor(text=texts, return_tensors="pt", padding=True)
-
-    # 获取文本嵌入
     with torch.no_grad():
         text_embeds = model.get_text_features(**inputs)
-
-    # 将嵌入转换为NumPy数组
     text_embeds_np = text_embeds.detach().numpy().flatten().tolist()
-    
     return text_embeds_np
-
-
-
-
 
 def generate_img_by_img(prompt,encoded_image):
     import requests
     import json
 
-    # 设置API端点
-    url = "http://localhost:7862/sdapi/v1/txt2img"
+    url = "http://localhost:7860/sdapi/v1/txt2img"
     
-    # 构建请求体
     payload = {
         "prompt": prompt,
         "negative_prompt": "",
@@ -92,25 +77,21 @@ def generate_img_by_img(prompt,encoded_image):
         "latent_mask": "",
         "sampler_index": "Euler",
         "include_init_images": False,
-        "script_name": "",  # 将脚本名置空
+        "script_name": "",  
         "script_args": [],
         "send_images": True,
         "save_images": False,
         "alwayson_scripts": {}
     }
 
-    # 将请求体转换为JSON格式
     headers = {'Content-Type': 'application/json'}
     data = json.dumps(payload)
 
-    # 发送POST请求
     response = requests.post(url, headers=headers, data=data)
 
-    # 检查响应状态码
     if response.status_code == 200:
         result = response.json()
         
-        # 获取返回的Base64编码图像
         image_base64 = result['images'][0]
         return image_base64
         
@@ -119,8 +100,4 @@ def generate_img_by_img(prompt,encoded_image):
         print(response.json())
 
 if __name__ == '__main__':
-    #res = get_image_embedding('./0014.jpg')
-    #res = get_text_embedding('黑猫警长')
-    #print(res,type(res))
-    #download_coco_part()
     generate_img_by_img('Generate a knight image','./coco_dataset/val2017/00000000000.jpg','./result.jpg')

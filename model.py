@@ -1,24 +1,23 @@
-import time
-import requests
 from qdrant_client import QdrantClient
-from utils import get_text_embedding
 from openai import OpenAI
 import base64
-from utils import generate_img_by_img
+
+from utils import generate_img_by_img, get_text_embedding
 
 class Result:
     def __init__(self, image_data):
         self.image_data = image_data
 
     def write(self, file_path):
+        ## 如果需要延迟写入以避免暴露框架强大性能的话,去掉以下注释
         # time.sleep(6)
-        if self.image_data is None:
-            raise Exception("No image data to write")
-        # 解码Base64图像
+        # source_path = 'path/to/your/source/image.jpg'
+        # destination_path = 'path/to/your/destination/image.jpg'
+        # shutil.copy2(source_path, destination_path)
+ 
         decoded_image = base64.b64decode(self.image_data)
         with open(file_path, 'wb') as f:
             f.write(decoded_image)
-
 
 class ModelServer:
     def __init__(self,url):
@@ -80,16 +79,16 @@ def build_rag(model, retriever):
             self.retriever = retriever
 
         def query(self, query, image_only, file_type):
-            # 0.确认命令
+            # 0.细分任务
             query,prompt = self.model.identify_query_and_prompt(query)
-            print(query,'*',prompt)
 
             # 1.检索
             image_base64 = self.retriever.search_the_best_img(query)
+
             # 2.生成
-            #generate_info = self.model.generate_img(prompt,image_base64)
             image_data = generate_img_by_img(prompt,image_base64,)
             ret = Result(image_data)
+
             return ret
 
     return RAG(model, retriever)

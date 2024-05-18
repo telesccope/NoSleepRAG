@@ -1,6 +1,6 @@
 import os
 
-def download_coco_part(file_path='coco_dataset/val2017.zip',extract_to='coco_dataset/val2017'):
+def download_coco(file_path='coco_dataset/val2017.zip',extract_to='coco_dataset/val2017'):
     import os
     import requests
     import zipfile
@@ -10,7 +10,6 @@ def download_coco_part(file_path='coco_dataset/val2017.zip',extract_to='coco_dat
 
     urls = [
         "http://images.cocodataset.org/zips/val2017.zip",
-        "http://images.cocodataset.org/annotations/annotations_trainval2017.zip"
     ]
     
     for url in urls:
@@ -24,6 +23,6 @@ def download_coco_part(file_path='coco_dataset/val2017.zip',extract_to='coco_dat
     print(f"Extracted {file_path} to {extract_to}")
 
 if __name__ == "__main__":
-    download_coco_part()
+    download_coco()
 
     
